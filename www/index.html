@@ -1,1 +1,32 @@
-<html><body>This is a tes</body></html>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale="1.0" />
+        <link rel="stylesheet" href="styles/main.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/104/three.js"></script>
+        <script language="JavaScript" src="scripts/main.js"></script>
+    </head>
+    <body onload="start()">
+        <div id="contentRoot">
+            This is a test page
+            <div id="videoCanvas"></div>
+        </div>
+
+        <div id="experience-page" class="page hidden">
+            In the experience
+        </div>
+        <div id="welcome-page" class="page shown">
+            Welcome Screen Placeholder
+            <div><button onclick="enterSite(1)">Enter the site</button></div>
+        </div>
+
+        <div id="haltOverlay" class="page">
+            msg goes here
+        </div>
+
+
+        <video id="primaryVideo" class="hidden"/>
+
+        <div >Timestamp: 2022-02-20 T 13:06-5:00 </div>
+    </body>
+</html>
