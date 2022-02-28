@@ -89,6 +89,8 @@ function showPage(pageID)
     target.classList.add('shown')
 
 }
+
+
 function enterSite() {
     showPage('experience-page')
     startMotionSensing();
