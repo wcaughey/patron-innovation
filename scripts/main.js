@@ -1,5 +1,11 @@
 
 
+var scene;
+var camera;
+var rendered;
+
+var cage;
+
 
 
 function NoSupport(msg) { 
@@ -29,6 +35,13 @@ function handleOrientation(ev) {
     console.log(ev);
 }
 
+function onWindowResize() {
+    if(camera) {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+}
 
 function startMotionSensing() {
     //iOS pathway
@@ -91,7 +104,69 @@ function showPage(pageID)
 }
 
 
+function initCamera() {
+    camera = new THREE.PerspectiveCamera(
+        75, //Viewing Angle
+        window.innerWidth/window.innerHeight, //aspect ratio
+        0.1, //near plane
+        1000 // far plane
+    );
+    camera.position.z = 0;
+}
+
+function initRenderer() {
+    renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+function startVideo() {
+    var videoElement = document.getElementById("primaryVideo")
+    //videoElement.currentTime = 100;
+    videoElement.addEventListener('play',()=> {
+        
+    })
+    videoElement.play();
+}
+
+
+function transitionToVideo(videoName) {
+    var videoElement = document.getElementById('primaryVideo');
+    videoElement.setAttribute('src',`videos\${videoName}`);
+    videoElement.play();
+}
+
+function buildSceneObjects() {
+       //const texture = new THREE.TextureLoader().load('img/j2inet.png')
+       var videoElement = document.getElementById("primaryVideo")
+       const texture = new THREE.VideoTexture(videoElement)
+   
+       var geometry =  new THREE.SphereGeometry(20,32,32); //new THREE.BoxGeometry(3,3,3);
+       var material = new THREE.MeshBasicMaterial({ map:texture, side: THREE.DoubleSide});
+       cage = new THREE.Mesh(geometry, material);
+       cage.rotation.z = 90;
+       scene.add(cage);
+   
+}
+
+function animateLoop() { 
+    requestAnimationFrame(animateLoop);
+    renderer.render(scene, camera);
+    //cage.rotation.x += 0.01;
+}
+
+function createScene() {
+    scene = new THREE.Scene();
+    initCamera();
+    initRenderer();
+    buildSceneObjects();
+    animateLoop();
+    window.addEventListener('resize', onWindowResize, false);
+    document.getElementById("SceneCanvas").appendChild(renderer.domElement);
+}
+
 function enterSite() {
     showPage('experience-page')
+    createScene();
+    startVideo();
     startMotionSensing();
 }
