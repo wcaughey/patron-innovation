@@ -143,7 +143,7 @@ function buildSceneObjects() {
        var geometry =  new THREE.SphereGeometry(20,32,32); //new THREE.BoxGeometry(3,3,3);
        var material = new THREE.MeshBasicMaterial({ map:texture, side: THREE.DoubleSide});
        cage = new THREE.Mesh(geometry, material);
-       cage.rotation.z = 90;
+       //cage.rotation.z = 90;
        scene.add(cage);
    
 }
