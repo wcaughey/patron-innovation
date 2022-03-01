@@ -5,6 +5,16 @@ html, body {
     font-size: 14pt;;
 }
 
+
+#devWindow {
+    position:absolute;
+    bottom:0px;
+    left:0px;
+    height:100px;
+    width:100%;
+    background-color: rgba(255, 255, 255, 0.548);
+}
+
 #haltOverlay {
     position:absolute;
     top:0px;

@@ -33,11 +33,18 @@ function start() {
 
 
 function handleMotion(ev) { 
-    console.log(ev);
+    let acceleration = ev.acceleration;
+    let accelWithGravity = ev.accelerationIncludingGravity;
+    document.getElementById('accelReading').innerText = `X: ${accelWithGravity.x.toFixed(3)}, Y:${accelWithGravity.y.toFixed(3)},Z:${accelWithGravity.z.toFixed(3)};`
 }
 
 function handleOrientation(ev) {
-    console.log(ev);
+	const absolute = ev.absolute;
+  const alpha    = ev.alpha;
+  const beta     = ev.beta;
+  const gamma    = ev.gamma;
+  var orientationDescription = `alpha,:${alpha.toFixed(3)},  beta:${beta.toFixed(3)}, gamma: ${gamma.toFixed(3)}`;
+  document.getElementById('orientationReading').innerText = orientationDescription;
 }
 
 function onWindowResize() {
