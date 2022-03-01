@@ -2,7 +2,7 @@
 <html>
     <head>
       <title>Innovation Sample</title>
-        <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale="1.0" />
+      <meta name = "viewport" content = "initial-scale = 1.0, user-scalable = no">
         <link rel="stylesheet" href="styles/main.css" />
         <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/104/three.js"></script>
         <script language="JavaScript" src="scripts/main.js"></script>
@@ -20,8 +20,14 @@
             In the experience
         </div>
         <div id="welcome-page" class="page shown">
-            Welcome Screen Placeholder
-            <div><button onclick="enterSite(1)">Enter the site</button></div>
+
+          <div id="welcome-form">
+            <div class="welcome-title">Welcome Screen Placeholder</div>            
+            <div class="welcome-title">
+              <button class="enter-button" onclick="enterSite('SPHERE')">Enter (Sphere)</button>
+              <button class="enter-button" onclick="enterSite('CUBE')">Enter (Cube)</button>
+            </div>
+          </div>
         </div>
 
         <div id="haltOverlay" class="page">

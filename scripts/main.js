@@ -6,7 +6,12 @@ var rendered;
 
 var cage;
 
+class MAP_TYPE {
+    static SPHERE = 'SPHERE';
+    static CUBE = 'CUBE';
+}
 
+var mapType = MAP_TYPE.CUBE;
 
 function NoSupport(msg) { 
     var haltOverlayElement = document.getElementById('haltOverlay');
@@ -61,7 +66,6 @@ function startMotionSensing() {
     {
         window.addEventListener("devicemotion", handleMotion, true);
     }
-    
     else {
         return NoSupport("Device Orientation is not supported on this device. Fallback not implemented")
     }   
@@ -84,7 +88,6 @@ function startMotionSensing() {
     else {
         return NoSupport("Device Motion is not supported on this device. Fallback not implemented")
     }
-
 }
 
 
@@ -140,9 +143,17 @@ function buildSceneObjects() {
        var videoElement = document.getElementById("primaryVideo")
        const texture = new THREE.VideoTexture(videoElement)
    
+    if(mapType == MAP_TYPE.SPHERE) {
        var geometry =  new THREE.SphereGeometry(20,32,32); //new THREE.BoxGeometry(3,3,3);
        var material = new THREE.MeshBasicMaterial({ map:texture, side: THREE.DoubleSide});
        cage = new THREE.Mesh(geometry, material);
+    } else if(mapType == MAP_TYPE.CUBE) {
+        var geometry =  new THREE.BoxGeometry(20,20,20); //new THREE.BoxGeometry(3,3,3);
+        var material = new THREE.MeshBasicMaterial({ map:texture, side: THREE.DoubleSide});
+        cage = new THREE.Mesh(geometry, material);
+    }
+
+
        //cage.rotation.z = 90;
        scene.add(cage);
    
@@ -164,9 +175,13 @@ function createScene() {
     document.getElementById("SceneCanvas").appendChild(renderer.domElement);
 }
 
-function enterSite() {
+function enterSite(mode) {
+    if((mode == MAP_TYPE.SPHERE || mode == MAP_TYPE.CUBE)) {
+        mapType  = mode;
+    }
     showPage('experience-page')
     createScene();
     startVideo();
     startMotionSensing();
 }
+
