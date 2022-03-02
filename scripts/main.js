@@ -6,6 +6,17 @@ var rendered;
 
 var cage;
 
+
+
+
+var rotationAccumulator =  {
+    x: 0,
+    y: 0,
+    z: 0
+}
+
+
+
 class MAP_TYPE {
     static SPHERE = 'SPHERE';
     static CUBE = 'CUBE';
@@ -29,11 +40,16 @@ function start() {
         NoSupport("Device Motion not available. No Dev Fallback.")
         return;
     }    
+
+    document.getElementById('experience-page').addEventListener('mousemove', experienceMouseMove);
 }
 
 
 function handleMotion(ev) { 
     let acceleration = ev.acceleration;
+    if (acceleration.x == null || acceleration.y == null || acceleration.z == 0) {
+        return
+    }    
     let accelWithGravity = ev.accelerationIncludingGravity;
     document.getElementById('accelReading').innerText = `X: ${accelWithGravity.x.toFixed(3)}, Y:${accelWithGravity.y.toFixed(3)},Z:${accelWithGravity.z.toFixed(3)};`
 }
@@ -43,6 +59,9 @@ function handleOrientation(ev) {
   const alpha    = ev.alpha;
   const beta     = ev.beta;
   const gamma    = ev.gamma;
+  if(alpha == null || beta == null || gamma == null) {
+      return;
+  }
   var orientationDescription = `alpha,:${alpha.toFixed(3)},  beta:${beta.toFixed(3)}, gamma: ${gamma.toFixed(3)}`;
   document.getElementById('orientationReading').innerText = orientationDescription;
 }
@@ -56,47 +75,98 @@ function onWindowResize() {
 }
 
 function startMotionSensing() {
-    //iOS pathway
-    if ( typeof( DeviceMotionEvent ) !== "undefined" && typeof( DeviceMotionEvent.requestPermission ) === "function" ) {
-        // (optional) Do something before API request prompt.
-        DeviceMotionEvent.requestPermission()
+    var deviceMotionPromise = new Promise((resolve,reject)=>{
+        //iOS pathway
+        if ( typeof( DeviceMotionEvent ) !== "undefined" && typeof( DeviceMotionEvent.requestPermission ) === "function" ) {
+            // (optional) Do something before API request prompt.
+            DeviceMotionEvent.requestPermission()
+                .then( response => {
+                // (optional) Do something after API prompt dismissed.
+                if ( response == "granted" ) {
+                    window.addEventListener("devicemotion", handleMotion, true);
+                } else {
+                    reject();
+                }
+                resolve();
+            })
+            .catch( console.error )
+        }
+        //handles motion, but doesn't require permission
+        else if (typeof(DeviceMotionEvent) != "undefined")
+        {
+            window.addEventListener("devicemotion", handleMotion, true);
+            resolve();
+        }
+        else {
+            return NoSupport("Device Orientation is not supported on this device. Fallback not implemented")
+        }
+    });   
+        
+    var deviceOrientationPromise = new Promise((resolve,reject)=>{
+        //iOS Pathway
+        if( typeof(DeviceOrientationEvent ) !== "undefined" && typeof(DeviceOrientationEvent.requestPermission ) === "function" ) {
+            DeviceOrientationEvent.requestPermission()
             .then( response => {
-            // (optional) Do something after API prompt dismissed.
-            if ( response == "granted" ) {
-                window.addEventListener("devicemotion", handleMotion, true);
-            }
-        })
-        .catch( console.error )
-    }
-    //handles motion, but doesn't require permission
-    else if (typeof(DeviceMotionEvent) != "undefined")
-    {
-        window.addEventListener("devicemotion", handleMotion, true);
-    }
-    else {
-        return NoSupport("Device Orientation is not supported on this device. Fallback not implemented")
-    }   
-    
-    //iOS Pathway
-    if( typeof(DeviceOrientationEvent ) !== "undefined" && typeof(DeviceOrientationEvent.requestPermission ) === "function" ) {
-        DeviceOrientationEvent.requestPermission()
-        .then( response => {
-            if(response == "granted") {
-                window.addEventListener("deviceorientation", handleOrientation, true);
-            }
-        })
-    }
-    //Handles orientation, but doesn't require permission
-    else if (typeof(DeviceMotionEvent) !== "undefined")
-    {
-        window.addEventListener("deviceorientation", handleOrientation, true);
-    }
-    //DeviceMotion not supported
-    else {
-        return NoSupport("Device Motion is not supported on this device. Fallback not implemented")
-    }
+                if(response == "granted") {
+                    window.addEventListener("deviceorientation", handleOrientation, true);
+                }
+            })
+        }
+        //Handles orientation, but doesn't require permission
+        else if (typeof(DeviceMotionEvent) !== "undefined")
+        {
+            window.addEventListener("deviceorientation", handleOrientation, true);
+        }
+        //DeviceMotion not supported
+        else {
+            return NoSupport("Device Motion is not supported on this device. Fallback not implemented")
+        }
+    });    
 }
 
+
+
+
+
+function rotateLeft() {
+    rotationAccumulator.y = cage.rotation.y - 0.2;
+    //cage.rotation.y -=0.2;
+}
+
+function rotateRight() {
+    rotationAccumulator.y = cage.rotation.y + 0.2;
+    //cage.rotation.y +=0.2;
+}
+
+
+function rotateUp() { 
+    rotationAccumulator.x = cage.rotation.x + 0.2;
+    //cage.rotation.x += 0.2;
+}
+
+function rotateDown() {
+    rotationAccumulator.x = cage.rotation.x - 0.2;
+    //cage.rotation.x -= 0.2;
+}
+
+function resetOrientation() {
+    rotationAccumulator = {
+        x:0,
+        y:0,
+        z:0
+    };
+    //cage.rotation.x = 0;
+    //cage.rotation.y = 0;
+    //cage.rotation.z = 0;
+}
+
+
+
+function experienceMouseMove(ev) {
+    var orientationElement = document.getElementById('navigation-widget');
+    orientationElement.classList.remove('hidden');
+    orientationElement.classList.add('shown');
+}
 
 function showPage(pageID)
 {
@@ -167,6 +237,38 @@ function buildSceneObjects() {
 }
 
 function animateLoop() { 
+
+    var diffX = rotationAccumulator.x - cage.rotation.x;
+    var diffY = rotationAccumulator.y - cage.rotation.y;
+    var diffZ = rotationAccumulator.z - cage.rotation.z;
+    if(diffX != 0)
+    {
+        if(Math.abs(diffX)< 0.01) {
+            cage.rotation.x = rotationAccumulator.x;
+        }
+        else { 
+            if(diffX < 0) {
+                cage.rotation.x -= 0.01;
+            } else {
+                cage.rotation.x += 0.01;
+            }
+        }
+    }
+
+    if(diffY != 0)
+    {
+        if(Math.abs(diffY)< 0.01) {
+            cage.rotation.y = rotationAccumulator.y;
+        }
+        else { 
+            if(diffY < 0) {
+                cage.rotation.y -= 0.01;
+            } else {
+                cage.rotation.y += 0.01;
+            }
+        }
+    }    
+
     requestAnimationFrame(animateLoop);
     renderer.render(scene, camera);
     //cage.rotation.x += 0.01;

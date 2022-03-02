@@ -44,18 +44,45 @@ margin-right: auto;
     background-position: center center;
 }
 
-
-
-
-
 .shown { 
     display: block;
+    opacity: 1.0;
 }
 
 .hidden { 
     display:none;
+    opacity: 0.0;
 }
 
+.orientationButton {
+    position:absolute;
+    width: 25px;
+    height:25px;
+}
+#orientationUp {
+    top:0px;
+    left:37.5px;
+}
+
+#orientationDown {
+    top:75px;
+    left:37.5px;
+}
+
+#orientationLeft {
+    top:37.5px;
+    left:0px;
+}
+
+#orientationRight {
+    top:37.5px;
+    left:75px;
+}
+
+#orientationReset {
+    top:37.5px;
+    left:37.5px;
+}
 
 .enter-button {
     width: 16%;    
@@ -70,6 +97,15 @@ margin-right: auto;
     margin:0px;
 
     background-color: #E0E0E0;
+}
+
+#navigation-widget {
+    position:absolute;
+    width:100px;
+    height:100px;
+    top:0px;
+    right:0px;
+    background-image: url(../img/navigationWidget.svg);
 }
 
 
