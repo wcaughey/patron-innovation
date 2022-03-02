@@ -15,12 +15,25 @@ var rotationAccumulator =  {
     z: 0
 }
 
+var startingOrientation = {
+    firstRead: true,
+    alpha: 0, 
+    beta: 0, 
+    gamma: 0
+}
+
 
 
 class MAP_TYPE {
     static SPHERE = 'SPHERE';
     static CUBE = 'CUBE';
 }
+
+
+function degreesToRadians(deg) {
+    return deg/ 180 * Math.PI;
+}
+
 
 var mapType = MAP_TYPE.CUBE;
 
@@ -62,6 +75,17 @@ function handleOrientation(ev) {
   if(alpha == null || beta == null || gamma == null) {
       return;
   }
+
+  if(startingOrientation.firstRead) {
+      startingOrientation.firstRead = false;
+      startingOrientation.alpha = alpha;
+      startingOrientation.beta = beta;
+      startingOrientation.gamma = gamma;
+  }
+
+  setAzimuth(-degreesToRadians (alpha - startingOrientation.alpha))
+  setAltitude(-degreesToRadians(beta - startingOrientation.beta))
+
   var orientationDescription = `alpha,:${alpha.toFixed(3)},  beta:${beta.toFixed(3)}, gamma: ${gamma.toFixed(3)}`;
   document.getElementById('orientationReading').innerText = orientationDescription;
 }
@@ -126,6 +150,16 @@ function startMotionSensing() {
 
 
 
+
+function setAzimuth(dir) {
+    rotationAccumulator.y = dir;
+    cage.rotation.y = dir;
+}
+
+function setAltitude(alt) {
+    rotationAccumulator.x = alt;
+    cage.rotation.x = alt;
+}
 
 
 function rotateLeft() {
