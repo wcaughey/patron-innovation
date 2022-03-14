@@ -5,7 +5,11 @@
       <meta name = "viewport" content = "initial-scale = 1.0, user-scalable = no">
         <link rel="stylesheet" href="styles/main.css" />
         <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/104/three.js"></script>
+
+        <script language="JavaScript" src="scripts/MathUtil.js"></script>
+        <script language="JavaScript" src="scripts/button3d.js"></script>
         <script language="JavaScript" src="scripts/main.js"></script>
+        
     </head>
     <body onload="start()">
         <div id="contentRoot">
@@ -54,10 +58,15 @@
             </span>
           </div>
 
+          <div>
+            <span>Raw Orientation</span>
+            <span id="rawOrientationReading">ttt</span>
+          </div>
+
         </div>
 
 
-        <video id="primaryVideo" volume="0" src="videos/clip01.mp4" class="hidden" loop style="top:400px;position:absolute;"/>
+        <video id="primaryVideo" playsinline volume="0" src="videos/clip01.mp4" class="hidden" loop style="top:400px;position:absolute;" />
 
         <div >Timestamp: 2022-02-20 T 13:06-5:00 </div> 
     </body>
