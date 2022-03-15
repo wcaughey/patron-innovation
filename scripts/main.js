@@ -54,11 +54,18 @@ function NoSupport(msg) {
 }
 
 
+function processClick() {
+    console.log('click');
+    currentStory.processClick(cage.rotation.x, cage.rotation.y);
+}
 
 function start() {
     
     screenOrientation = getOrientation();
-    currentStory = loadStory('./data/story-set-00/story.json');
+    var ve = document.getElementById('primaryVideo')
+    loadStory('./data/story-set-00/story.json', ve).then(story=>currentStory = story);
+
+    document.getElementById('experience-page').addEventListener('click', processClick)
 
     if(!window.DeviceOrientationEvent) {
         NoSupport("DEV : Device does not implement orientation API. Fallback not yet implemented.")

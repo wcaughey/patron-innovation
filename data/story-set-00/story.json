@@ -10,8 +10,8 @@
             "interactions":[
                 {
                     "interactionType":"tap",
-                    "activeSTart":2.1,
-                    "activeEnd":4.0,
+                    "activeStart":2.1,
+                    "activeEnd":20.0,
                     "position": {
                         "units":"degrees",
                         "azimuth":0,

@@ -4,6 +4,7 @@
     static EarthRadiusInMiles = 3956.0; 
     static EarthRadiusInKilometers = 6367.0; 
     static EarthRadiusInMeters = EarthRadiusInKilometers*1000; 
+    static Circle360Radius= 57.2957795; //This unit results in the distance also being the degree of separation.
 
     static ToRadian(val) { return val * (Math.PI / 180); } 
     static ToDegree(val) { return val * 180 / Math.PI; } 
@@ -11,7 +12,7 @@
 
      static  CalcDistance(/*GeoCoordinate*/ p1, /*GeoCoordinate*/ p2) 
     { 
-        return CalcDistance(p1.Latitude, p1.Longitude, p2.Latitude, p2.Longitude, EarthRadiusInKilometers); 
+        return CalcDistance(p1.Latitude, p1.Longitude, p2.Latitude, p2.Longitude, Circle360Radius); 
     } 
 
     static Bearing(/*GeoCoordinate*/ p1, /*GeoCoordinate*/ p2) 
