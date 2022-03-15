@@ -1,0 +1,101 @@
+{
+    "title":"make a decision",
+    "inital-state":"default",
+
+    "states": {
+        "default": {
+            "video":"/videos/clip00.mp4",
+            "onEnd": "loop",
+            "loopOffset":2.0,
+            "interactions":[
+                {
+                    "interactionType":"tap",
+                    "activeSTart":2.1,
+                    "activeEnd":4.0,
+                    "position": {
+                        "units":"degrees",
+                        "azimuth":0,
+                        "altitude":0,
+                        "variance":30,
+                        "action": {
+                            "type":"state",
+                            "newState":"video-01"
+                        }
+                    }
+                },
+                {
+                    "interactionType":"tap",
+                    "activeStart":2.1,
+                    "activeEnd": 10,
+                    "position": {
+                        "units":"degrees",
+                        "azimuth":180, 
+                        "altitude":0,
+                        "variance":30,
+                        "action": {
+                            "type": "state",
+                            "newState":"video-02"
+                        }
+                    }
+                },
+                {
+                    "interactionType":"tap",
+                    "position": {
+                        "units":"degrees",
+                        "azimuth":0,
+                        "altitude":-180,
+                        "action": {
+                            "type":"reset"
+                        }
+                    }
+                },
+                {
+                    "interactionType":"tap",
+                    "position": {
+                        "units":"degrees",
+                        "azimuth":0,
+                        "altitude":180,
+                        "action": {
+                            "type":"info",
+                            "data" : {
+                                "template":"/data/story-set-00/info-template.fragment.html",
+                                "data-00": "Some arbitrary data can go here"
+                            }
+                        }
+                    }
+                }
+                
+            ]
+        },
+        "video-01": {
+            "video":"/videos/clip01",
+            "onEnd": "navigate",
+            "navigateTarget":"default",
+            "interactions":[]
+        },
+        "video-02": {
+            "video":"/videos/clip02",
+            "onEnd": "loop",
+            "loopOffset":0,
+            "interactions":[
+                {
+                    "interactionType":"tap",
+                    "position": {
+                        "units":"degrees",
+                        "azimuth": 0, 
+                        "altitude":0,
+                        "variance": 180,
+                        "action": {
+                            "type":"state",
+                            "newState": "video-default"
+                        }
+
+                    }
+                }
+            ]
+
+        }
+    }
+
+    
+}

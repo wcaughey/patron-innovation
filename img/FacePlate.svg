@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120mm" height="40mm">
+
+
+    <g  fill="none" stroke="black">
+        <rect x="2.8mm" y="4mm" width="107.4mm" height="19mm" rx="3mm" ry="3mm" />
+        <circle cx="56.5mm" cy="13.5mm" r="0.9mm" />
+        
+        <rect x="10mm" y="10.59mm" height="5.82mm" width="6.21mm" />
+        <rect x="11.2mm" y="11.79mm" height="3.42mm" width="3.81mm" />
+
+        <rect x="93.99mm" y="11.79mm" height="3.42mm" width="3.81mm" />
+        <rect x="92.79mm" y="10.59mm" height="5.82mm" width="6.21mm" />
+        <!--
+            bit = 2.4mm thick
+            half = 1.2mm
+
+
+        <rect x="4mm" y="4mm" width="105mm" height="19mm" rx="3mm" ry="3mm" />
+        <circle cx="56.5mm" cy="13.5mm" r="2.1mm" />
+        <rect x="10mm" y="10.59mm" height="5.82mm" width="6.21mm" />
+        <rect x="92.79mm" y="10.59mm" height="5.82mm" width="6.21mm" />
+
+        -->
+    </g>
+
+
+</svg>

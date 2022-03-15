@@ -6,7 +6,7 @@ var rendered;
 
 var cage;
 
-
+var currentStory;
 
 
 var rotationAccumulator =  {
@@ -30,12 +30,22 @@ class MAP_TYPE {
 }
 
 
-function degreesToRadians(deg) {
-    return deg/ 180 * Math.PI;
+class SCREEN_ORIENTATION { 
+    static LANDSCAPE = 'LANDSCAPE';
+    static PORTRAIT = 'PORTRAIT';
 }
 
 
 var mapType = MAP_TYPE.CUBE;
+var screenOrientation = SCREEN_ORIENTATION.PORTRAIT;
+
+
+function getOrientation() { 
+    if(window.innerWidth>window.innerHeight) {
+        return SCREEN_ORIENTATION.LANDSCAPE;
+    }
+    return SCREEN_ORIENTATION.PORTRAIT;
+}
 
 function NoSupport(msg) { 
     var haltOverlayElement = document.getElementById('haltOverlay');
@@ -43,8 +53,13 @@ function NoSupport(msg) {
     haltOverlayElement.style.display = "block"
 }
 
+
+
 function start() {
     
+    screenOrientation = getOrientation();
+    currentStory = loadStory('./data/story-set-00/story.json');
+
     if(!window.DeviceOrientationEvent) {
         NoSupport("DEV : Device does not implement orientation API. Fallback not yet implemented.")
         return;
@@ -53,6 +68,8 @@ function start() {
         NoSupport("Device Motion not available. No Dev Fallback.")
         return;
     }    
+
+    window.onresize = onWindowResize;
 
     document.getElementById('experience-page').addEventListener('mousemove', experienceMouseMove);
 }
@@ -70,8 +87,8 @@ function handleMotion(ev) {
 function handleOrientation(ev) {
 	const absolute = ev.absolute;
   const alpha    = ev.alpha;
-  const beta     = ev.beta;
-  const gamma    = ev.gamma;
+  const beta     = ev.beta; //(screenOrientation == SCREEN_ORIENTATION.PORTRAIT) ? ev.beta : ev.gamma;
+  const gamma    = ev.gamma;//(screenOrientation == SCREEN_ORIENTATION.PORTRAIT) ? ev.gamma : -ev.beta;
   if(alpha == null || beta == null || gamma == null) {
       return;
   }
@@ -86,11 +103,23 @@ function handleOrientation(ev) {
   setAzimuth(-degreesToRadians (alpha - startingOrientation.alpha))
   setAltitude(-degreesToRadians(beta - startingOrientation.beta))
 
+  var rawOrientationElement = document.getElementById('rawOrientationReading');
+  var rawOrientation = `alpha,:${ev.alpha.toFixed(3)},  beta:${ev.beta.toFixed(3)}, gamma: ${ev.gamma.toFixed(3)}`;
+  rawOrientationElement.innerText = rawOrientation;
+
+
+
   var orientationDescription = `alpha,:${alpha.toFixed(3)},  beta:${beta.toFixed(3)}, gamma: ${gamma.toFixed(3)}`;
   document.getElementById('orientationReading').innerText = orientationDescription;
+
+  //var rawOrientation = `alpha,:${ev.alpha.toFixed(3)},  beta:${ev.beta.toFixed(3)}, gamma: ${ev.gamma.toFixed(3)}`;
+  
 }
 
 function onWindowResize() {
+
+    screenOrientation = getOrientation();
+    console.log('orientation', screenOrientation);
     if(camera) {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
@@ -240,6 +269,7 @@ function startVideo() {
         
     })
     videoElement.play();
+    videoElement.volume = 0.1;
 }
 
 
