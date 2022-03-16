@@ -22,6 +22,11 @@ var startingOrientation = {
     gamma: 0
 }
 
+var lastAccelerometerReading = {
+    x: 0, 
+    y:0, 
+    z:0
+}
 
 
 class MAP_TYPE {
@@ -88,6 +93,7 @@ function handleMotion(ev) {
         return
     }    
     let accelWithGravity = ev.accelerationIncludingGravity;
+    this.lastAccelerometerReading = accelWithGravity;
     document.getElementById('accelReading').innerText = `X: ${accelWithGravity.x.toFixed(3)}, Y:${accelWithGravity.y.toFixed(3)},Z:${accelWithGravity.z.toFixed(3)};`
 }
 
@@ -99,13 +105,20 @@ function handleOrientation(ev) {
   if(alpha == null || beta == null || gamma == null) {
       return;
   }
-
+  
+  
+  var flipFacingDirection = this.lastAccelerometerReading.z < 0;
+  var directionOffset = (flipFacingDirection)? 0 : 180;  
+  beta +=  directionOffset;
+  
   if(startingOrientation.firstRead) {
       startingOrientation.firstRead = false;
-      startingOrientation.alpha = alpha;
-      startingOrientation.beta = beta;
-      startingOrientation.gamma = gamma;
+      startingOrientation.alpha = alpha ;
+      startingOrientation.beta = beta ;
+      startingOrientation.gamma =  gamma ;
   }
+
+  
 
   setAzimuth(-degreesToRadians (alpha - startingOrientation.alpha))
   setAltitude(-degreesToRadians(beta - startingOrientation.beta))
