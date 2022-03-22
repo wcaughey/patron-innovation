@@ -4,8 +4,8 @@
       <title>Innovation Sample</title>
       <meta name = "viewport" content = "initial-scale = 1.0, user-scalable = no">
         <link rel="stylesheet" href="styles/main.css" />
+        <script src="//cdn.dashjs.org/v2.9.2/dash.all.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/104/three.js"></script>
-
         <script language="JavaScript" src="scripts/MathUtil.js"></script>
         <script language="JavaScript" src="scripts/button3d.js"></script>
         <script language="JavaScript" src="scripts/distanceCalculator.js"></script>
@@ -19,7 +19,7 @@
             <div id="videoCanvas"></div>
         </div>
 
-        <div id="" class="page hidden" >
+        <div id="experience-page" class="page hidden" >
           <div id="SceneCanvas">
 
           </div>
@@ -68,7 +68,18 @@
         </div>
 
 
-        <video id="primaryVideo" playsinline volume="0" src="videos/clip01.mp4" class="hidden" loop style="top:400px;position:absolute;" />
+        <video id="primaryVideo" playsinline volume="0" class="hidden"  style="top:400px;position:absolute;" >
+          <source 
+          src="https://testendpoint-patroninnovation-usct.streaming.media.azure.net/fce1172b-4ae4-4349-9113-89e9d9c93285/clip00.ism/manifest(format=mpd-time-csf)"                
+          type="application/dash+xml"
+      />
+
+      <source 
+          src="https://testendpoint-patroninnovation-usct.streaming.media.azure.net/fce1172b-4ae4-4349-9113-89e9d9c93285/clip00.ism/manifest(format=m3u8-cmaf)"
+          _type="application/dash+xml"
+          type="application/vnd.apple.mpegurl"
+      />        
+        </video>
 
         <div >Timestamp: 2022-02-20 T 13:06-5:00 </div> 
     </body>

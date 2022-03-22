@@ -9,7 +9,11 @@ var cage;
 var currentStory;
 
 
-var rotationAccumulator =  {
+var mediaParameters = {
+    "stream-formats":[]
+}
+
+var rotationAccumulator = {
     x: 0,
     y: 0,
     z: 0
@@ -17,15 +21,15 @@ var rotationAccumulator =  {
 
 var startingOrientation = {
     firstRead: true,
-    alpha: 0, 
-    beta: 0, 
+    alpha: 0,
+    beta: 0,
     gamma: 0
 }
 
 var lastAccelerometerReading = {
-    x: 0, 
-    y:0, 
-    z:0
+    x: 0,
+    y: 0,
+    z: 0
 }
 
 
@@ -35,7 +39,7 @@ class MAP_TYPE {
 }
 
 
-class SCREEN_ORIENTATION { 
+class SCREEN_ORIENTATION {
     static LANDSCAPE = 'LANDSCAPE';
     static PORTRAIT = 'PORTRAIT';
 }
@@ -45,14 +49,14 @@ var mapType = MAP_TYPE.CUBE;
 var screenOrientation = SCREEN_ORIENTATION.PORTRAIT;
 
 
-function getOrientation() { 
-    if(window.innerWidth>window.innerHeight) {
+function getOrientation() {
+    if (window.innerWidth > window.innerHeight) {
         return SCREEN_ORIENTATION.LANDSCAPE;
     }
     return SCREEN_ORIENTATION.PORTRAIT;
 }
 
-function NoSupport(msg) { 
+function NoSupport(msg) {
     var haltOverlayElement = document.getElementById('haltOverlay');
     haltOverlayElement.innerText = msg;
     haltOverlayElement.style.display = "block"
@@ -64,22 +68,30 @@ function processClick() {
     currentStory.processClick(cage.rotation.x, cage.rotation.y);
 }
 
+function loadMediaParams() {
+    fetch('data/azure-media-parameters')
+    .then(data=data.json())
+    .then (data=> {
+        mediaParameters = data;
+    });
+}
+
 function start() {
-    
+
     screenOrientation = getOrientation();
     var ve = document.getElementById('primaryVideo')
-    loadStory('./data/story-set-00/story.json', ve).then(story=>currentStory = story);
+    loadStory('./data/story-set-00/story.json', ve).then(story => currentStory = story);
 
     document.getElementById('experience-page').addEventListener('click', processClick)
 
-    if(!window.DeviceOrientationEvent) {
+    if (!window.DeviceOrientationEvent) {
         NoSupport("DEV : Device does not implement orientation API. Fallback not yet implemented.")
         return;
     }
-    if(!window.DeviceMotionEvent) {
+    if (!window.DeviceMotionEvent) {
         NoSupport("Device Motion not available. No Dev Fallback.")
         return;
-    }    
+    }
 
     window.onresize = onWindowResize;
 
@@ -87,60 +99,59 @@ function start() {
 }
 
 
-function handleMotion(ev) { 
+function handleMotion(ev) {
     let acceleration = ev.acceleration;
     if (acceleration.x == null || acceleration.y == null || acceleration.z == 0) {
         return
-    }    
+    }
     let accelWithGravity = ev.accelerationIncludingGravity;
     this.lastAccelerometerReading = accelWithGravity;
     document.getElementById('accelReading').innerText = `X: ${accelWithGravity.x.toFixed(3)}, Y:${accelWithGravity.y.toFixed(3)},Z:${accelWithGravity.z.toFixed(3)};`
 }
 
 function handleOrientation(ev) {
-	const absolute = ev.absolute;
-  const alpha    = ev.alpha;
-  const beta     = ev.beta; //(screenOrientation == SCREEN_ORIENTATION.PORTRAIT) ? ev.beta : ev.gamma;
-  const gamma    = ev.gamma;//(screenOrientation == SCREEN_ORIENTATION.PORTRAIT) ? ev.gamma : -ev.beta;
-  if(alpha == null || beta == null || gamma == null) {
-      return;
-  }
-  
-  
-  var flipFacingDirection = this.lastAccelerometerReading.z < 0;
-  var directionOffset = (flipFacingDirection)? 0 : 180;  
-  beta +=  directionOffset;
-  
-  if(startingOrientation.firstRead) {
-      startingOrientation.firstRead = false;
-      startingOrientation.alpha = alpha ;
-      startingOrientation.beta = beta ;
-      startingOrientation.gamma =  gamma ;
-  }
+    var flipFacingDirection = this.lastAccelerometerReading.z < 0;
+    var directionOffset = (flipFacingDirection) ? 0 : 180;
 
-  
 
-  setAzimuth(-degreesToRadians (alpha - startingOrientation.alpha))
-  setAltitude(-degreesToRadians(beta - startingOrientation.beta))
+    const absolute = ev.absolute;
+    const alpha = ev.alpha;
+    const beta = ev.beta; //(screenOrientation == SCREEN_ORIENTATION.PORTRAIT) ? ev.beta : ev.gamma;
+    const gamma = ev.gamma + directionOffset;//(screenOrientation == SCREEN_ORIENTATION.PORTRAIT) ? ev.gamma : -ev.beta;
+    if (alpha == null || beta == null || gamma == null) {
+        return;
+    }
 
-  var rawOrientationElement = document.getElementById('rawOrientationReading');
-  var rawOrientation = `alpha,:${ev.alpha.toFixed(3)},  beta:${ev.beta.toFixed(3)}, gamma: ${ev.gamma.toFixed(3)}`;
-  rawOrientationElement.innerText = rawOrientation;
+    if (startingOrientation.firstRead) {
+        startingOrientation.firstRead = false;
+        startingOrientation.alpha = alpha;
+        startingOrientation.beta = beta;
+        startingOrientation.gamma = gamma;
+    }
 
 
 
-  var orientationDescription = `alpha,:${alpha.toFixed(3)},  beta:${beta.toFixed(3)}, gamma: ${gamma.toFixed(3)}`;
-  document.getElementById('orientationReading').innerText = orientationDescription;
+    setAzimuth(-degreesToRadians(alpha - startingOrientation.alpha))
+    setAltitude(-degreesToRadians(beta - startingOrientation.beta))
 
-  //var rawOrientation = `alpha,:${ev.alpha.toFixed(3)},  beta:${ev.beta.toFixed(3)}, gamma: ${ev.gamma.toFixed(3)}`;
-  
+    var rawOrientationElement = document.getElementById('rawOrientationReading');
+    var rawOrientation = `alpha,:${ev.alpha.toFixed(3)},  beta:${ev.beta.toFixed(3)}, gamma: ${ev.gamma.toFixed(3)}`;
+    rawOrientationElement.innerText = rawOrientation;
+
+
+
+    var orientationDescription = `alpha,:${alpha.toFixed(3)},  beta:${beta.toFixed(3)}, gamma: ${gamma.toFixed(3)}`;
+    document.getElementById('orientationReading').innerText = orientationDescription;
+
+    //var rawOrientation = `alpha,:${ev.alpha.toFixed(3)},  beta:${ev.beta.toFixed(3)}, gamma: ${ev.gamma.toFixed(3)}`;
+
 }
 
 function onWindowResize() {
 
     screenOrientation = getOrientation();
     console.log('orientation', screenOrientation);
-    if(camera) {
+    if (camera) {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -148,53 +159,51 @@ function onWindowResize() {
 }
 
 function startMotionSensing() {
-    var deviceMotionPromise = new Promise((resolve,reject)=>{
+    var deviceMotionPromise = new Promise((resolve, reject) => {
         //iOS pathway
-        if ( typeof( DeviceMotionEvent ) !== "undefined" && typeof( DeviceMotionEvent.requestPermission ) === "function" ) {
+        if (typeof (DeviceMotionEvent) !== "undefined" && typeof (DeviceMotionEvent.requestPermission) === "function") {
             // (optional) Do something before API request prompt.
             DeviceMotionEvent.requestPermission()
-                .then( response => {
-                // (optional) Do something after API prompt dismissed.
-                if ( response == "granted" ) {
-                    window.addEventListener("devicemotion", handleMotion, true);
-                } else {
-                    reject();
-                }
-                resolve();
-            })
-            .catch( console.error )
+                .then(response => {
+                    // (optional) Do something after API prompt dismissed.
+                    if (response == "granted") {
+                        window.addEventListener("devicemotion", handleMotion, true);
+                    } else {
+                        reject();
+                    }
+                    resolve();
+                })
+                .catch(console.error)
         }
         //handles motion, but doesn't require permission
-        else if (typeof(DeviceMotionEvent) != "undefined")
-        {
+        else if (typeof (DeviceMotionEvent) != "undefined") {
             window.addEventListener("devicemotion", handleMotion, true);
             resolve();
         }
         else {
             return NoSupport("Device Orientation is not supported on this device. Fallback not implemented")
         }
-    });   
-        
-    var deviceOrientationPromise = new Promise((resolve,reject)=>{
+    });
+
+    var deviceOrientationPromise = new Promise((resolve, reject) => {
         //iOS Pathway
-        if( typeof(DeviceOrientationEvent ) !== "undefined" && typeof(DeviceOrientationEvent.requestPermission ) === "function" ) {
+        if (typeof (DeviceOrientationEvent) !== "undefined" && typeof (DeviceOrientationEvent.requestPermission) === "function") {
             DeviceOrientationEvent.requestPermission()
-            .then( response => {
-                if(response == "granted") {
-                    window.addEventListener("deviceorientation", handleOrientation, true);
-                }
-            })
+                .then(response => {
+                    if (response == "granted") {
+                        window.addEventListener("deviceorientation", handleOrientation, true);
+                    }
+                })
         }
         //Handles orientation, but doesn't require permission
-        else if (typeof(DeviceMotionEvent) !== "undefined")
-        {
+        else if (typeof (DeviceMotionEvent) !== "undefined") {
             window.addEventListener("deviceorientation", handleOrientation, true);
         }
         //DeviceMotion not supported
         else {
             return NoSupport("Device Motion is not supported on this device. Fallback not implemented")
         }
-    });    
+    });
 }
 
 
@@ -222,7 +231,7 @@ function rotateRight() {
 }
 
 
-function rotateUp() { 
+function rotateUp() {
     rotationAccumulator.x = cage.rotation.x + 0.2;
     //cage.rotation.x += 0.2;
 }
@@ -234,9 +243,9 @@ function rotateDown() {
 
 function resetOrientation() {
     rotationAccumulator = {
-        x:0,
-        y:0,
-        z:0
+        x: 0,
+        y: 0,
+        z: 0
     };
     //cage.rotation.x = 0;
     //cage.rotation.y = 0;
@@ -251,15 +260,14 @@ function experienceMouseMove(ev) {
     orientationElement.classList.add('shown');
 }
 
-function showPage(pageID)
-{
+function showPage(pageID) {
     var elementList = document.getElementsByClassName("page");
-    for(let i=0;i<elementList.length;++i) {
+    for (let i = 0; i < elementList.length; ++i) {
         let element = elementList[i];
-        element.classList.remove('shown'); 
-        element.classList.add('hidden') ;
+        element.classList.remove('shown');
+        element.classList.add('hidden');
     }
-     
+
     var target = document.getElementById(pageID);
     target.classList.remove('hidden');
     target.classList.add('shown')
@@ -270,7 +278,7 @@ function showPage(pageID)
 function initCamera() {
     camera = new THREE.PerspectiveCamera(
         75, //Viewing Angle
-        window.innerWidth/window.innerHeight, //aspect ratio
+        window.innerWidth / window.innerHeight, //aspect ratio
         0.1, //near plane
         1000 // far plane
     );
@@ -285,8 +293,8 @@ function initRenderer() {
 function startVideo() {
     var videoElement = document.getElementById("primaryVideo")
     //videoElement.currentTime = 100;
-    videoElement.addEventListener('play',()=> {
-        
+    videoElement.addEventListener('play', () => {
+
     })
     videoElement.play();
     videoElement.volume = 0.1;
@@ -295,43 +303,42 @@ function startVideo() {
 
 function transitionToVideo(videoName) {
     var videoElement = document.getElementById('primaryVideo');
-    videoElement.setAttribute('src',`videos\${videoName}`);
+    //videoElement.setAttribute('src', `videos\${videoName}`);
     videoElement.play();
 }
 
 function buildSceneObjects() {
-       //const texture = new THREE.TextureLoader().load('img/j2inet.png')
-       var videoElement = document.getElementById("primaryVideo")
-       const texture = new THREE.VideoTexture(videoElement)
-   
-    if(mapType == MAP_TYPE.SPHERE) {
-       var geometry =  new THREE.SphereGeometry(20,32,32); //new THREE.BoxGeometry(3,3,3);
-       var material = new THREE.MeshBasicMaterial({ map:texture, side: THREE.DoubleSide});
-       cage = new THREE.Mesh(geometry, material);
-    } else if(mapType == MAP_TYPE.CUBE) {
-        var geometry =  new THREE.BoxGeometry(20,20,20); //new THREE.BoxGeometry(3,3,3);
-        var material = new THREE.MeshBasicMaterial({ map:texture, side: THREE.DoubleSide});
+    //const texture = new THREE.TextureLoader().load('img/j2inet.png')
+    var videoElement = document.getElementById("primaryVideo")
+    const texture = new THREE.VideoTexture(videoElement)
+
+    if (mapType == MAP_TYPE.SPHERE) {
+        var geometry = new THREE.SphereGeometry(20, 32, 32); //new THREE.BoxGeometry(3,3,3);
+        var material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+        cage = new THREE.Mesh(geometry, material);
+    } else if (mapType == MAP_TYPE.CUBE) {
+        var geometry = new THREE.BoxGeometry(20, 20, 20); //new THREE.BoxGeometry(3,3,3);
+        var material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
         cage = new THREE.Mesh(geometry, material);
     }
 
 
-       //cage.rotation.z = 90;
-       scene.add(cage);
-   
+    //cage.rotation.z = 90;
+    scene.add(cage);
+
 }
 
-function animateLoop() { 
+function animateLoop() {
 
     var diffX = rotationAccumulator.x - cage.rotation.x;
     var diffY = rotationAccumulator.y - cage.rotation.y;
     var diffZ = rotationAccumulator.z - cage.rotation.z;
-    if(diffX != 0)
-    {
-        if(Math.abs(diffX)< 0.01) {
+    if (diffX != 0) {
+        if (Math.abs(diffX) < 0.01) {
             cage.rotation.x = rotationAccumulator.x;
         }
-        else { 
-            if(diffX < 0) {
+        else {
+            if (diffX < 0) {
                 cage.rotation.x -= 0.01;
             } else {
                 cage.rotation.x += 0.01;
@@ -339,19 +346,18 @@ function animateLoop() {
         }
     }
 
-    if(diffY != 0)
-    {
-        if(Math.abs(diffY)< 0.01) {
+    if (diffY != 0) {
+        if (Math.abs(diffY) < 0.01) {
             cage.rotation.y = rotationAccumulator.y;
         }
-        else { 
-            if(diffY < 0) {
+        else {
+            if (diffY < 0) {
                 cage.rotation.y -= 0.01;
             } else {
                 cage.rotation.y += 0.01;
             }
         }
-    }    
+    }
 
     requestAnimationFrame(animateLoop);
     renderer.render(scene, camera);
@@ -369,8 +375,8 @@ function createScene() {
 }
 
 function enterSite(mode) {
-    if((mode == MAP_TYPE.SPHERE || mode == MAP_TYPE.CUBE)) {
-        mapType  = mode;
+    if ((mode == MAP_TYPE.SPHERE || mode == MAP_TYPE.CUBE)) {
+        mapType = mode;
     }
     showPage('experience-page')
     createScene();

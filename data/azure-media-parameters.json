@@ -1,0 +1,12 @@
+{
+    "stream-formats": [
+        {
+            "format":"format=mpd-time-csf",
+            "type":"application/dash+xml"
+        },
+        {
+            "format":"format=m3u8-cmaf",
+            "type":"application/vnd.apple.mpegurl"
+        }
+    ]
+}

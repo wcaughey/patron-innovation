@@ -19,18 +19,76 @@ class StoryManager {
     //current time offset when determining if a hit spot is active.
     mediaElement = null;
     currentState = "video-01";
+    mediaParameters = {}
 
-    
+
+    setMediaParameters(paramsObject) { 
+        this.mediaParameters = paramsObject;
+    }
+
+
     constructor(storyData, mediaElement) {
         var self = this;        
         this.storyData = storyData;
         var videoUrl = this.storyData.states[this.currentState].video
         this.mediaElement = mediaElement;
         this.mediaElement.addEventListener('ended', (evt)=>{self.onVideoEnded(evt)});
-        this.mediaElement.setAttribute('src', videoUrl);
+        this.loadMediaParams()
+        .then(()=>{
+            self.setVideo(videoUrl);   
+        });
+        
         
     }
 
+     loadMediaParams() {
+         return new Promise((resolve, reject)=>{         
+            fetch('data/azure-media-parameters.json')
+            .then(data=>data.json())
+            .then (data=> {    
+                this.mediaParameters = data;
+                resolve(data);
+            });
+        })
+    }
+
+    setVideo(sourceList) {
+        while(this.mediaElement.firstChild) {
+            this.mediaElement.removeChild(this.mediaElement.firstChild);
+        }
+
+        if(typeof sourceList === "string") {
+            sourceList = [sourceList]
+        }
+        
+        var sourceElementList = []
+
+        sourceList.forEach(source=> {
+            var absoluteUrlExpression = /^[a-zA-Z]+:\/\//gm;
+            var isAbsoluteUrl = absoluteUrlExpression.test(source);
+            if(isAbsoluteUrl) {                
+                this.mediaParameters["stream-formats"].forEach((x)=>{
+                    var s = `${source}(${x.format})`;
+                    var sourceElement = document.createElement('source');
+                    sourceElement.setAttribute("src", s)
+                    sourceElement.setAttribute("type", x.type);
+                    sourceElementList.push(sourceElement);
+                });
+            } else {
+                //It is a relative URL. We are not adding our azure media service parameters.
+                var sourceElement = document.createElement('source');
+                sourceElement.setAttribute("src", source);
+                sourceElementList.push(sourceElement)          ;
+            }
+
+            sourceElementList.forEach((x)=> {
+                this.mediaElement.appendChild(x);
+                
+            })            
+
+    
+        });
+    }
 
     onVideoEnded(event) { 
         let currentStateData = this.storyData.states[this.currentState];
@@ -47,7 +105,8 @@ class StoryManager {
             case 'navigate': {
                 if(currentStateData.navigateTarget) {
                     this.currentState = currentStateData.navigateTarget;
-                    this.mediaElement.setAttribute('src', this.storyData.states[this.currentState].video);
+                    
+                    this.setVideo(this.storyData.states[this.currentState].video);
                     this.mediaElement.play();
                 }
             }

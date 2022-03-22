@@ -2,10 +2,14 @@
     "title":"make a decision",
     "inital-state":"default",
 
+    "media-suffic-list": ["format=mpd-time-csf","format=m3u8-cmaf"],
     "states": {
         "default": {
-            "video":"/videos/clip00.mp4",
-            "onEnd": "loop",
+            "video":[
+                        "https://testendpoint-patroninnovation-usct.streaming.media.azure.net/fce1172b-4ae4-4349-9113-89e9d9c93285/clip00.ism/manifest",
+                        "./videos/clip00.mp4"
+                    ],
+            "onEnded": "loop",
             "loopOffset":2.0,
             "interactions":[
                 {
@@ -68,14 +72,21 @@
             ]
         },
         "video-01": {
-            "video":"/videos/clip01",
-            "onEnd": "navigate",
+            "video":[
+                "https://testendpoint-patroninnovation-usct.streaming.media.azure.net/fce1172b-4ae4-4349-9113-89e9d9c93285/clip01.ism/manifest",
+                "./videos/clip01.mp4"
+            ],
+            "onEnded": "navigate",
             "navigateTarget":"default",
             "interactions":[]
         },
         "video-02": {
-            "video":"/videos/clip02",
-            "onEnd": "loop",
+            "video":[
+                "https://testendpoint-patroninnovation-usct.streaming.media.azure.net/fce1172b-4ae4-4349-9113-89e9d9c93285/clip02.ism/manifest",
+                "./videos/clip02.mp4"
+            ],
+
+            "onEnded": "loop",
             "loopOffset":0,
             "interactions":[
                 {
