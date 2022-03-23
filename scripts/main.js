@@ -323,8 +323,10 @@ function buildSceneObjects() {
     }
 
 
+    var b = new Button3d(30, 30, "test", ()=>{})
     //cage.rotation.z = 90;
     scene.add(cage);
+    scene.add(b.feoObj);
 
 }
 
