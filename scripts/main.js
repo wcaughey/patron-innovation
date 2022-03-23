@@ -211,12 +211,22 @@ function startMotionSensing() {
 
 function setAzimuth(dir) {
     rotationAccumulator.y = dir;
-    cage.rotation.y = dir;
+    camera.rotation.y = -dir;
+    //cage.rotation.y = dir;
+}
+
+function getAzimuth() {
+    return rotationAccumulator.y;
 }
 
 function setAltitude(alt) {
     rotationAccumulator.x = alt;
-    cage.rotation.x = alt;
+    camera.rotation.x = -alt;
+    //cage.rotation.x = alt;
+}
+
+function getAltitude() {
+    return rotationAccumulator.x;
 }
 
 
@@ -313,7 +323,7 @@ function buildSceneObjects() {
     const texture = new THREE.VideoTexture(videoElement)
 
     if (mapType == MAP_TYPE.SPHERE) {
-        var geometry = new THREE.SphereGeometry(20, 32, 32); //new THREE.BoxGeometry(3,3,3);
+        var geometry = new THREE.SphereGeometry(200, 64, 64); //new THREE.BoxGeometry(3,3,3);
         var material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
         cage = new THREE.Mesh(geometry, material);
     } else if (mapType == MAP_TYPE.CUBE) {
@@ -322,11 +332,13 @@ function buildSceneObjects() {
         cage = new THREE.Mesh(geometry, material);
     }
 
-
-    var b = new Button3d(30, 30, "test", ()=>{})
+    var buttonTexture = new THREE.TextureLoader().load("img/box_x.png");
+    var buttonMaterial = new THREE.MeshBasicMaterial({ map: buttonTexture, side: THREE.DoubleSide });
+    var b = new Button3d(1, 10,0,30, buttonMaterial, ()=>{});
+    
     //cage.rotation.z = 90;
     scene.add(cage);
-    scene.add(b.feoObj);
+    cage.add(b.geometry)    
 
 }
 
