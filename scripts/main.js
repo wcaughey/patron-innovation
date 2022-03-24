@@ -287,7 +287,7 @@ function showPage(pageID) {
 
 function initCamera() {
     camera = new THREE.PerspectiveCamera(
-        75, //Viewing Angle
+        90, //Viewing Angle
         window.innerWidth / window.innerHeight, //aspect ratio
         0.1, //near plane
         1000 // far plane
@@ -332,13 +332,23 @@ function buildSceneObjects() {
         cage = new THREE.Mesh(geometry, material);
     }
 
-    var buttonTexture = new THREE.TextureLoader().load("img/box_x.png");
-    var buttonMaterial = new THREE.MeshBasicMaterial({ map: buttonTexture, side: THREE.DoubleSide });
-    var b = new Button3d(1, 10,0,30, buttonMaterial, ()=>{});
+    var b_x = Button3d.circularButon(5,"./img/buttons/box_y.png",0, 0,  ()=>{} )
+    cage.add(b_x.geometry)    
+
+    var b_y = Button3d.circularButon(5,"./img/buttons/box_x.png",15, 0, ()=>{} )
+    cage.add(b_y.geometry)    
     
+
+    var b_a = Button3d.circularButon(5,"./img/buttons/box_a.png",30, 0, ()=>{} )
+    cage.add(b_a.geometry)    
+
+    var b_b = Button3d.circularButon(5,"./img/buttons/box_b.png",45, 0, ()=>{} )
+    cage.add(b_b.geometry)    
+
+
     //cage.rotation.z = 90;
     scene.add(cage);
-    cage.add(b.geometry)    
+    
 
 }
 
