@@ -103,7 +103,10 @@ class Button3d {
                     break;
                 }
         }
+        this.geometry.eulerOrder = 'ZXY'
+        this.geometry.rotation.z = degreesToRadians( this.altitude);
         this.geometry.rotation.y = degreesToRadians( -this.azimuth);
+        
     }
 
     reconstructEllipseMesh() {

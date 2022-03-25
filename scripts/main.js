@@ -1,12 +1,12 @@
 
-
+const ERROR_COLOR = 0x00FF00;
 var scene;
 var camera;
 var rendered;
 
 var cage;
 
-var currentStory;
+var currentStory = {};
 
 
 var mediaParameters = {
@@ -77,10 +77,8 @@ function loadMediaParams() {
 }
 
 function start() {
-
-    screenOrientation = getOrientation();
-    var ve = document.getElementById('primaryVideo')
-    loadStory('./data/story-set-00/story.json', ve).then(story => currentStory = story);
+    console.debug('start()')
+    screenOrientation = getOrientation();    
 
     document.getElementById('experience-page').addEventListener('click', processClick)
 
@@ -159,6 +157,7 @@ function onWindowResize() {
 }
 
 function startMotionSensing() {
+    console.debug(`startMotionSensing()`)
     var deviceMotionPromise = new Promise((resolve, reject) => {
         //iOS pathway
         if (typeof (DeviceMotionEvent) !== "undefined" && typeof (DeviceMotionEvent.requestPermission) === "function") {
@@ -271,6 +270,7 @@ function experienceMouseMove(ev) {
 }
 
 function showPage(pageID) {
+    console.debug(`showPage(${pageID})`)
     var elementList = document.getElementsByClassName("page");
     for (let i = 0; i < elementList.length; ++i) {
         let element = elementList[i];
@@ -286,8 +286,9 @@ function showPage(pageID) {
 
 
 function initCamera() {
+    console.debug('initCamera()')
     camera = new THREE.PerspectiveCamera(
-        90, //Viewing Angle
+        75, //Viewing Angle
         window.innerWidth / window.innerHeight, //aspect ratio
         0.1, //near plane
         1000 // far plane
@@ -296,42 +297,52 @@ function initCamera() {
 }
 
 function initRenderer() {
+    console.debug('initRenderer()')
     renderer = new THREE.WebGLRenderer();
+    renderer.setClearColor( 0x00003f, 1 );
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
 function startVideo() {
+    console.debug('startVideo()')
     var videoElement = document.getElementById("primaryVideo")
     //videoElement.currentTime = 100;
     videoElement.addEventListener('play', () => {
 
     })
+    console.debug('startVideo::play()');
     videoElement.play();
     videoElement.volume = 0.1;
 }
 
 
 function transitionToVideo(videoName) {
+    console.debug('transitionToVideo()')
     var videoElement = document.getElementById('primaryVideo');
     //videoElement.setAttribute('src', `videos\${videoName}`);
+    console.log('transitionToVideo::play()');
     videoElement.play();
 }
 
 function buildSceneObjects() {
+    console.debug('buildSceneObjects()')
     //const texture = new THREE.TextureLoader().load('img/j2inet.png')
     var videoElement = document.getElementById("primaryVideo")
     const texture = new THREE.VideoTexture(videoElement)
+    
+    var errorMaterial = new THREE.MeshBasicMaterial({ color: videoElement, side: THREE.DoubleSide });
+    var videoMaterial = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
 
     if (mapType == MAP_TYPE.SPHERE) {
         var geometry = new THREE.SphereGeometry(200, 64, 64); //new THREE.BoxGeometry(3,3,3);
-        var material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+        var material = videoMaterial;
         cage = new THREE.Mesh(geometry, material);
     } else if (mapType == MAP_TYPE.CUBE) {
         var geometry = new THREE.BoxGeometry(20, 20, 20); //new THREE.BoxGeometry(3,3,3);
-        var material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+        var material = videoMaterial;
         cage = new THREE.Mesh(geometry, material);
     }
-
+    /*
     var b_x = Button3d.circularButon(5,"./img/buttons/box_y.png",0, 0,  ()=>{} )
     cage.add(b_x.geometry)    
 
@@ -347,8 +358,9 @@ function buildSceneObjects() {
 
 
     //cage.rotation.z = 90;
-    scene.add(cage);
     
+    */
+    scene.add(cage);
 
 }
 
@@ -389,22 +401,31 @@ function animateLoop() {
 }
 
 function createScene() {
+    console.debug('createScene()')
     scene = new THREE.Scene();
     initCamera();
     initRenderer();
     buildSceneObjects();
     animateLoop();
+
     window.addEventListener('resize', onWindowResize, false);
     document.getElementById("SceneCanvas").appendChild(renderer.domElement);
 }
 
 function enterSite(mode) {
+    console.debug(`enterSite(${mode})`)
     if ((mode == MAP_TYPE.SPHERE || mode == MAP_TYPE.CUBE)) {
         mapType = mode;
     }
     showPage('experience-page')
-    createScene();
-    startVideo();
-    startMotionSensing();
+    var ve = document.getElementById('primaryVideo')
+    loadStory('./data/story-set-01/story.json', ve).then(story => {
+        currentStory = story;
+        createScene();
+        currentStory.setRootObject(cage);
+        currentStory.loadInteractions();
+        startMotionSensing();
+        startVideo();
+    });
 }
 

@@ -1,0 +1,117 @@
+{
+    "title":"make a decision",
+    "inital-state":"default",
+
+    "media-suffic-list": ["format=mpd-time-csf","format=m3u8-cmaf"],
+    "states": {
+        "default": {
+            "video":[                        
+                        "videos/localVideos/0-Deciding.mp4"
+                    ],
+            "onEnded": "loop",
+            "loopOffset":2.0,
+            "interactions":[
+                {
+                    "interactionType":"tap",
+                    "activeStart":2.2,
+                    "activeEnd":20.0,
+                    "image":"./img/buttons/box_y.png",
+                    "position": {
+                        "units":"degrees",
+                        "azimuth":280,
+                        "altitude":8,
+                        "variance":1.5,
+                        "action": {
+                            "type":"state",
+                            "newState":"video-01"
+                        }
+                    }
+                },
+                {
+                    "interactionType":"tap",
+                    "activeStart":2.1,
+                    "activeEnd": 10,
+                    "image":"./img/buttons/box_x.png",
+                    "position": {
+                        "units":"degrees",
+                        "azimuth":240, 
+                        "altitude":0,
+                        "variance":1,
+                        "action": {
+                            "type": "state",
+                            "newState":"video-02"
+                        }
+                    }
+                },
+                {
+                    "interactionType":"tap",
+                    "image":"./img/buttons/box_a.png",
+                    "position": {
+                        "units":"degrees",
+                        "azimuth":45,
+                        "altitude":100,
+                        "variance":2,
+                        "action": {
+                            "type":"reset"
+                        }
+                    }
+                },
+                {
+                    "interactionType":"tap",
+                    "position": {
+                        "units":"degrees",
+                        "azimuth":0,
+                        "altitude":180,
+                        "image":"./img/buttons/box_b.png",
+                        "variance":10,
+                        "action": {
+                            "type":"info",
+                            "data" : {
+                                "template":"/data/story-set-00/info-template.fragment.html",
+                                "data-00": "Some arbitrary data can go here"
+                            }
+                        }
+                    }
+                }
+                
+            ]
+        },
+        "video-01": {
+            "video":[
+                "https://testendpoint-patroninnovation-usct.streaming.media.azure.net/fce1172b-4ae4-4349-9113-89e9d9c93285/clip01.ism/manifest",
+                "./videos/localVideos/2-CuttingGrass.mp4"
+            ],
+            "onEnded": "navigate",
+            "navigateTarget":"default",
+            "interactions":[]
+        },
+        "video-02": {
+            "video":[
+                "https://testendpoint-patroninnovation-usct.streaming.media.azure.net/fce1172b-4ae4-4349-9113-89e9d9c93285/clip02.ism/manifest",
+                "./videos/clip02.mp4"
+            ],
+
+            "onEnded": "loop",
+            "loopOffset":0,
+            "interactions":[
+                {
+                    "interactionType":"tap",
+                    "position": {
+                        "units":"degrees",
+                        "azimuth": 0, 
+                        "altitude":0,
+                        "variance": 180,
+                        "action": {
+                            "type":"state",
+                            "newState": "video-default"
+                        }
+
+                    }
+                }
+            ]
+
+        }
+    }
+
+    
+}

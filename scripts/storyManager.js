@@ -1,11 +1,11 @@
 
 
-function loadStory(storyUrl, mediaElement) {
+function loadStory(storyUrl, mediaElement, rootObject) {
     return new Promise((resolve, reject) => {
-        fetch(storyUrl)
+        fetch(`${storyUrl}?x=${(new Date()).getTime()}`)
         .then(data=>data.json())
         .then(jsonData=> {
-            var manager = new StoryManager(jsonData, mediaElement);
+            var manager = new StoryManager(jsonData, mediaElement, rootObject);
             resolve(manager);
         });
     });
@@ -18,8 +18,10 @@ class StoryManager {
     //The story manager needs a reference to the media element so that it can check the 
     //current time offset when determining if a hit spot is active.
     mediaElement = null;
-    currentState = "video-01";
+    currentState = "default";
     mediaParameters = {}
+    scene = {};
+    camera = {}
 
 
     setMediaParameters(paramsObject) { 
@@ -28,17 +30,37 @@ class StoryManager {
 
 
     constructor(storyData, mediaElement) {
-        var self = this;        
+        var self = this;           
         this.storyData = storyData;
         var videoUrl = this.storyData.states[this.currentState].video
         this.mediaElement = mediaElement;
+        this.mediaElement.addEventListener('loadeddata', function() {
+
+            if(self.mediaElement.readyState >= 2) {
+                console.debug('StoryManager::ctor::play()');
+              self.mediaElement.play();
+            }          
+          });
         this.mediaElement.addEventListener('ended', (evt)=>{self.onVideoEnded(evt)});
         this.loadMediaParams()
         .then(()=>{
-            self.setVideo(videoUrl);   
+            self.setVideo(videoUrl);
+        }); 
+        
+    }
+
+    setRootObject(rootObject) {
+        this.rootObject = rootObject;
+    }
+
+    loadInteractions() {
+        var interactions = this.storyData.states[this.currentState].interactions;
+        interactions.forEach((i) => {
+            if(i.image) {
+                var b = Button3d.circularButon(i.position.variance,i.image,i.position.azimuth, i.position.altitude,  ()=>{} )
+                this.rootObject.add(b.geometry);
+            }           
         });
-        
-        
     }
 
      loadMediaParams() {
@@ -84,10 +106,13 @@ class StoryManager {
             sourceElementList.forEach((x)=> {
                 this.mediaElement.appendChild(x);
                 
-            })            
+            })  
+            this.mediaElement.src = sourceList[0]          ;
 
     
         });
+        console.debug('StoryManager::setVideo::play()');
+        //this.mediaElement.play();
     }
 
     onVideoEnded(event) { 
@@ -99,6 +124,7 @@ class StoryManager {
                 console.log(`video ended, going to time offset ${targetOffset} seconds`)
                 this.mediaElement.currentTime = currentStateData.loopOffset || 0;
                 this.mediaElement.currentTime = targetOffset;
+                console.log('StoryManager::onVideoEnded::loop::play()');
                 this.mediaElement.play();
             }
             break;
@@ -107,6 +133,7 @@ class StoryManager {
                     this.currentState = currentStateData.navigateTarget;
                     
                     this.setVideo(this.storyData.states[this.currentState].video);
+                    console.log('StoryManager::onVideoEnded::navigate::play()');
                     this.mediaElement.play();
                 }
             }
